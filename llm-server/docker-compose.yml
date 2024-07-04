@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  fastapi:
+    build:
+      context: ./fastapi
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./fastapi/app/.env
+    networks:
+      - app_network
+    depends_on:
+      - ollama
+    
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"      
+    depends_on:
+      - fastapi
+    networks:
+      - app_network
+
+  ollama:
+    image: ollama/ollama:latest    
+    environment:
+      - API_KEY=your_ollama_api_key  # Replace or set in a safer way        
+    command: ["serve"]
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
