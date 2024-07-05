@@ -33,6 +33,27 @@ services:
     networks:
       - app_network
 
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    ports:
+      - "9000:80"
+      - "9022:22"
+      - "9443:443"
+    volumes:
+      - gitlab-data:/var/opt/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-config:/etc/gitlab
+    networks:
+      - deploy_network
+
+volumes:
+  gitlab-data:
+  gitlab-logs:
+  gitlab-config:
+
 networks:
   app_network:
+    driver: bridge
+  deploy_network:
     driver: bridge
