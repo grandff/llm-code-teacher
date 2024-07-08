@@ -38,5 +38,7 @@ http://developer.gaeasoft.co.kr/development-guide/gitlab/gitlab-introduce/
 
 
 ## 레퍼런스 
+webhook 외부도메인
+https://portone.gitbook.io/docs/result/webhook
 [CI/CD] Docker 기반 Jenkins(local), Gitlab(VM), NginX(Oracle) 3-Tier CI/CD 구축 실습
 https://velog.io/@masibasi/CICD-Docker-%EA%B8%B0%EB%B0%98-Jenkinslocal-GitlabVM-NginXOracle-3-Tier-CICD-%EA%B5%AC%EC%B6%95-%EC%8B%A4%EC%8A%B5
