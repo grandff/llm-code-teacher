@@ -1,18 +1,30 @@
 # gitLab
 
-## 설치 및 ID/PW
-docker-compose up -d
-admin : ID(root), password(xvI3K/tBxGEc97XUhPxJFumvqDtXfykkcDPNmDDqxMU=)
-password root로 변경은 했는데 확인중
+## 설치 및 ID/PW 설정
+docker exec -it gitlab bash
+gitlab-rails console -e production
+user = User.where(id: 1).first
+user.password = 'ComplexPassword123!'
+user.password_confirmation = 'ComplexPassword123!'
+user.save!
+id: root
+pw: ComplexPassword123! 
+
 
 ## git clone 및 push
 git config --global user.name "Administrator"
-git config --global user.email "gitlab_admin_20acd2@example.com"
+git config --global user.email "gitlab_admin_db5f08@example.com"
 
 git config --global user.name
 git config --global user.email
 
-## git clone 및 push
+## webhook 
+webhook은 외부 도메인만 접속이 가능하다록 함 -> 내부주소를 외부주소로 바꾸는 ngrok 사용
+https://dashboard.ngrok.com/get-started/setup/macos
+로그인후 토큰 발행후 등록
+ngrok config add-authtoken 2ixVALCltvax8EZxh9ZbIBTgfHU_4dEg6Fe98wFjsEmbv2tPu
+ngrok http http://127.0.0.1:5000 명령어 사용하여 5000을 외부로 포트로 변경 
+외부 url을 webhook에 등록
 
 
 ## 라이센스
@@ -23,3 +35,8 @@ MIT License
 레퍼런스
 https://velog.io/@ssulv3030/MIT-license%EB%9E%80
 http://developer.gaeasoft.co.kr/development-guide/gitlab/gitlab-introduce/
+
+
+## 레퍼런스 
+[CI/CD] Docker 기반 Jenkins(local), Gitlab(VM), NginX(Oracle) 3-Tier CI/CD 구축 실습
+https://velog.io/@masibasi/CICD-Docker-%EA%B8%B0%EB%B0%98-Jenkinslocal-GitlabVM-NginXOracle-3-Tier-CICD-%EA%B5%AC%EC%B6%95-%EC%8B%A4%EC%8A%B5
