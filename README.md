@@ -1,5 +1,11 @@
 # LLM 기반 Code 리뷰 시스템
 
+## 사용 전 필수 설치
+1. network 생성
+```bash
+docker network create shared_network
+```
+
 ## ollama 사용방법
 1. docker compose로 컨테이너 모두 실행 여부 확인
 2. ollama container로 들어가서 아래 명령어 입력

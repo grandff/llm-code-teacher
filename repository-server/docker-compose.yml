@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:  
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    ports:
+      - "9000:80"
+      - "9022:22"
+      - "9443:443"
+    volumes:
+      - gitlab-data:/var/opt/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-config:/etc/gitlab
+    networks:      
+      - shared_network
+
+  # run-script:
+  #   image: busybox
+  #   networks:
+  #     - app_network
+  #   depends_on:
+  #     ollama:
+  #       condition: service_healthy
+  #   entrypoint: ["/bin/sh", "-c", "exec /bin/bash -c 'ollama run llama3'"]
+
+volumes:
+  gitlab-data:
+  gitlab-logs:
+  gitlab-config:
+
+networks:
+  shared_network:
+    external: true  
