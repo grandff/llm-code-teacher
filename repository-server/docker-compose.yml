@@ -15,15 +15,6 @@ services:
     networks:      
       - shared_network
 
-  # run-script:
-  #   image: busybox
-  #   networks:
-  #     - app_network
-  #   depends_on:
-  #     ollama:
-  #       condition: service_healthy
-  #   entrypoint: ["/bin/sh", "-c", "exec /bin/bash -c 'ollama run llama3'"]
-
 volumes:
   gitlab-data:
   gitlab-logs:

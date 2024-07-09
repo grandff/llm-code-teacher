@@ -56,21 +56,6 @@ services:
     command: ["serve"]
     networks:
       - app_network    
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-    #   interval: 60s
-    #   timeout: 30s
-    #   retries: 20
-
-  
-  # run-script:
-  #   image: busybox
-  #   networks:
-  #     - app_network
-  #   depends_on:
-  #     ollama:
-  #       condition: service_healthy
-  #   entrypoint: ["/bin/sh", "-c", "exec /bin/bash -c 'ollama run llama3'"]
 
 networks:
   app_network:
