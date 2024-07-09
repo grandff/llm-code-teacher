@@ -1,11 +1,10 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
-from app.models import ErrorResponse
+from models import ErrorResponse
 from dotenv import load_dotenv
 import uvicorn
-import httpx
 import os
-from app.routers import ollama_run
+from routers import ollama_run, celery_status
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
@@ -15,6 +14,7 @@ app = FastAPI()
 
 # routers
 app.include_router(ollama_run.router)
+app.include_router(celery_status.router)
 
 ALLOWED_DOMAINS = os.getenv("ALLOWED_DOMAINS", "").split(",")
 REQUIRED_HEADERS = {"API-Key": os.getenv("API_KEY")}
