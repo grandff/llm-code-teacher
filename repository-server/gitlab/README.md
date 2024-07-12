@@ -8,29 +8,30 @@ pw: ComplexPassword123!
 ```
 
 
-## git clone 및 push
+## git admin 설정
 ```bash
+//설정
 git config --global user.name "Administrator"
 git config --global user.email "root@example.com"
+
+//확인
 git config --global user.name
 git config --global user.email
 ```
 
-## webhook 
+## webhook 환경구축
 1. amdin Area 클릭
 ![스크린샷 2024-07-11 오전 8 45 48](https://github.com/grandff/llm-code-teacher/assets/29056140/243a5a64-be41-4566-ba7c-c1b2bff6354e)
 
 2. Setting > Network > Outbound requests> 클릭
 ![스크린샷 2024-07-11 오후 1 31 20](https://github.com/grandff/llm-code-teacher/assets/29056140/99c757ff-2f38-4c2d-a9cf-689636bc94e1)
 
-```bash
-webhook은 외부 도메인만 접속이 가능하다록 함 -> 내부주소를 외부주소로 바꾸는 ngrok 사용
-https://dashboard.ngrok.com/get-started/setup/macos
-로그인후 토큰 발행후 등록
-ngrok config add-authtoken 2ixVALCltvax8EZxh9ZbIBTgfHU_4dEg6Fe98wFjsEmbv2tPu
-ngrok http http://127.0.0.1:5000 명령어 사용하여 5000을 외부로 포트로 변경 
-외부 url을 webhook에 등록
-```
+3. Access Token 발생 
+![스크린샷 2024-07-12 오전 9 35 32](https://github.com/user-attachments/assets/9befb8ac-fb6f-4676-955b-aaf7faa66b3f)
+
+4. webhook 추가하기
+![스크린샷 2024-07-12 오전 9 39 38](https://github.com/user-attachments/assets/aef7ea8e-9e17-4bc9-949b-08187f4c727a)
+
 
 ## 라이센스
 ```bash
@@ -53,16 +54,31 @@ opt/gitlab/embedded/bin/runsvdir-start & gitlab-ctl reconfigure
 ```
 
 ## 레퍼런스
-
 webhook 정보
 ```bash
 https://docs.gitlab.com/ee/user/project/integrations/webhooks.html
 ```
 
-
-webhook 외부도메인
+## Docker 자주 사용하는 명령어 
 ```bash
-https://portone.gitbook.io/docs/result/webhook
-[CI/CD] Docker 기반 Jenkins(local), Gitlab(VM), NginX(Oracle) 3-Tier CI/CD 구축 실습
-https://velog.io/@masibasi/CICD-Docker-%EA%B8%B0%EB%B0%98-Jenkinslocal-GitlabVM-NginXOracle-3-Tier-CICD-%EA%B5%AC%EC%B6%95-%EC%8B%A4%EC%8A%B5
+docker ps -al
+docker exec -it <container_id> /bin/bash
+
+//연결정보 확인
+curl http://gitlab/
 ```
+
+
+
+## webhook 외부도메인(안봐도됨)
+```bash
+webhook은 외부 도메인만 접속이 가능하다록 함 -> 내부주소를 외부주소로 바꾸는 ngrok 사용
+https://dashboard.ngrok.com/get-started/setup/macos
+로그인후 토큰 발행후 등록
+ngrok config add-authtoken 2ixVALCltvax8EZxh9ZbIBTgfHU_4dEg6Fe98wFjsEmbv2tPu
+ngrok http http://127.0.0.1:5000 명령어 사용하여 5000을 외부로 포트로 변경 
+외부 url을 webhook에 등록
+```
+
+
+
