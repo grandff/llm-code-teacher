@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./app /app
 
-RUN pip install -r /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # RUN apt update
 
