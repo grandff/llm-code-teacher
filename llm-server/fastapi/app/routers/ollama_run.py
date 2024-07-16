@@ -13,7 +13,6 @@ from celery_app import celery_app, llm_code_review_task
 load_dotenv()
 
 router = APIRouter()
-# HOST_IP = os.getenv("HOST_IP", "localhost")
 
 @router.post("/code/review")
 async def llm_code_review(request : PromptRequest):        

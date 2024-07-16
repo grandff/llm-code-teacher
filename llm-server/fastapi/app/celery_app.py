@@ -9,9 +9,7 @@ load_dotenv()
 # 환경변수에서 브로커 URL을 설정합니다.
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
-
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
-
 celery_app = Celery('worker', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
 @celery_app.task(name="tasks.llm_code_review_task")
@@ -40,6 +38,31 @@ def llm_code_review_task(prompt):
                 },
             ])                 
         ai_response = response['message']['content']
-        return ai_response
+        file_dir = "/home/example/"
+        file_name = "example.md"
+        file_info = save_md_to_file(ai_response, file_dir, file_name)
+        
+        return { "response" : ai_response, "info" : file_info}
     except httpx.HTTPStatusError as exc:
         return str(exc)
+    
+
+# markdown 파일 생성
+def save_md_to_file(markdown_str : str, directory : str, file_name : str) :
+    # 디렉토리가 존재하지 않으면 생성
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        
+     # 파일 경로 생성
+    file_path = os.path.join(directory, file_name)
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(markdown_str)
+    
+    # 파일 객체 정보 변환
+    file_info = {
+        'file_path' : file_path,
+        'file_name' : os.path.getsize(file_path)
+    }
+    
+    return file_info

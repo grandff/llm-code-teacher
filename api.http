@@ -10,7 +10,7 @@ API-Key: 123456
 
 ### tastk status 
 ### tasks 뒤에 task id 사용
-GET http://localhost/tasks/6d571157-75d0-4fbb-b446-261d67966fe2
+GET http://localhost/tasks/cc0bd498-8f48-4383-81c7-6fcdf49ec996
 API-Key: 123456
 
 

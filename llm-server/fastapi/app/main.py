@@ -4,7 +4,7 @@ from models import ErrorResponse
 from dotenv import load_dotenv
 import uvicorn
 import os
-from routers import ollama_run, celery_status
+from routers import ollama_run, celery_status, gitlab_hook
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
@@ -15,6 +15,7 @@ app = FastAPI()
 # routers
 app.include_router(ollama_run.router)
 app.include_router(celery_status.router)
+app.include_router(gitlab_hook.router)
 
 ALLOWED_DOMAINS = os.getenv("ALLOWED_DOMAINS", "").split(",")
 REQUIRED_HEADERS = {"API-Key": os.getenv("API_KEY")}
