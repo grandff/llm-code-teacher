@@ -5,8 +5,9 @@ from dotenv import load_dotenv
 import os
 import git
 from urllib.parse import urlparse
-from celery_app import llm_code_review_task
+from celery_app import llm_code_review_task, llm_code_review_task_by_langchain
 from services.create_prompt import create_prompt
+import shutil
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
@@ -44,31 +45,30 @@ async def gitlab_webhook(request : Request):
     added_files_content = {}
     modified_files_content = {}    
     
-    try :
-        ## FIXME 이부분 지금 오류남
-        if not os.path.exists(LOCAL_REPO_PATH) :
-            # 레포지토리 정보가 없다면 클론
-            repo = git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
-        else :
-            # 이미 존재하는 경우 변경 사항만 가져옴
-            repo = git.Repo(LOCAL_REPO_PATH)
-            origin = repo.remotes.origin
-            origin.pull()
-                    
+    try :                
+        # 로컬 디렉토리 정리
+        if os.path.exists(LOCAL_REPO_PATH):
+            shutil.rmtree(LOCAL_REPO_PATH)
+        # 리포지토리 클론
+        repo = git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
         # 특정 커밋으로 체크아웃
         repo.git.checkout(commit_sha)
+            
+        # ## FIXME 이부분 지금 오류남
+        # if not os.path.exists(LOCAL_REPO_PATH) :
+        #     # 레포지토리 정보가 없다면 클론
+        #     repo = git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
+        # else :
+        #     # 이미 존재하는 경우 변경 사항만 가져옴
+        #     repo = git.Repo(LOCAL_REPO_PATH)
+        #     origin = repo.remotes.origin
+        #     origin.pull()
+                    
+        # # 특정 커밋으로 체크아웃
+        # repo.git.checkout(commit_sha)
         
         # 수정된 파일 목록 가져오기 및 파일 내용 읽기
-        for commit in commits:            
-            commit_id = commit["id"]    # commit id
-            commit_title = commit["title"]  # title
-            commit_message = commit["message"] # message
-            
-            # 제목과 타이틀 저장            
-            commit_id_list.append(commit_id)
-            title_dict[commit_id] = commit_title
-            message_dict[commit_id] = commit_message          
-            
+        for commit in commits:                        
             # 추가된 파일
             for file_path in commit["added"]:
                 absolute_file_path = os.path.join(LOCAL_REPO_PATH, file_path)
@@ -91,8 +91,15 @@ async def gitlab_webhook(request : Request):
     
     # prompt 생성
     request = PromptCreateRequest(id_list=commit_id_list, title_dict=title_dict, message_dict=message_dict, added_files_content=added_files_content, modified_files_content=modified_files_content)
-    user_prompt = create_prompt(request)
-    print(user_prompt)
-    task = llm_code_review_task.apply_async(args=[user_prompt])
+    user_prompt = create_prompt(request)        
+    print("====")
+    print(user_prompt)    
+    print("====")
+    task = llm_code_review_task.apply_async(args=[user_prompt])    
+    # task2 = llm_code_review_task_by_langchain.apply_async(args=[user_prompt])    
+    # llm_code_review_task
+    # llm_code_review_task_by_langchain
+    print("====")
     print(task.id)    
-    return JSONResponse(status_code=200, content={"detail" : task.id})
+    print("====")
+    return JSONResponse(status_code=200, content={"detail" : task.id, "detail2" : ""})

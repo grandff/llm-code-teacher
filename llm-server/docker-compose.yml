@@ -7,8 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    env_file:
-      - ./fastapi/app/.env
+    # env_file:
+    #   - ./fastapi/app/.env
     networks:
       - app_network
     environment:
@@ -29,11 +29,26 @@ services:
       dockerfile: Dockerfile
     command: celery -A app.celery_app worker --loglevel=info
     volumes:
-      - ./fastapi:/app
-    env_file:
-      - ./fastapi/app/.env
+      - ./fastapi:/app      
+    # env_file:
+    #   - ./fastapi/app/.env
     depends_on:
       - redis
+    networks:
+      - app_network
+
+  flower:    
+    image: mher/flower
+    command: celery -A app.celery_app flower --port=5555
+    volumes:
+      - ./fastapi:/app      
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - celery
     networks:
       - app_network
 

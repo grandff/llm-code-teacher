@@ -1,5 +1,15 @@
 # LLM Server
 
+## 명령어
+```bash
+# 개발서버: 
+docker compose --env-file ./fastapi/app/.env.dev up --build -d 
+
+#운영서버
+docker compose --env-file ./fastapi/app/.env.prod up -d
+
+```
+
 ## FastAPI
 - 사용자가 FastAPI 서버로 HTTP 요청을 보냄
 - FastAPI는 요청을 라우팅하고 관련된 엔드포인트 핸들러를 호출
