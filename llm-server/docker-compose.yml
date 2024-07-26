@@ -38,6 +38,7 @@ services:
       - app_network
 
   nginx:
+    container_name: nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -48,6 +49,7 @@ services:
     networks:
       - app_network
       - shared_network
+      - report_network
 
   ollama:
     image: ollama/ollama:latest    
@@ -62,3 +64,5 @@ networks:
     driver: bridge
   shared_network:
     external: true
+  report_network:
+    external: true  

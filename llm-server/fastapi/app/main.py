@@ -32,6 +32,7 @@ async def check_header_middleware(request: Request, call_next):
             # return JSONResponse(status_code=403, content=error_response.dict())
     #     raise HTTPException(status_code=403, detail="Domain not allowed")
 
+    
     # Verify headers    
     for key, value in REQUIRED_HEADERS.items():        
         if key not in headers or headers[key] != value:
@@ -42,32 +43,33 @@ async def check_header_middleware(request: Request, call_next):
     return response
 
 
-@app.middleware("https")
-async def check_header_middleware(request: Request, call_next):
-    headers = request.headers
-
-    # Verify domain
-    # TODO 도메인 정해지면 그때 바꾸기 + json으로 리턴
-    # if "host" not in headers or headers["host"] not in ALLOWED_DOMAINS:
-    #     raise HTTPException(status_code=403, detail="Domain not allowed")
-
-    # Verify headers
-    for key, value in REQUIRED_HEADERS.items():
-        if key not in headers or headers[key] != value:
-            error_response = ErrorResponse(detail="Invalid header")
-            return JSONResponse(status_code=403, content=error_response.dict())
-
-    response = await call_next(request)
-    return response
-
-
 @app.get("/health")
-async def health_check():
+async def health_get_check():
     return {"status": "ok"}
 
 @app.post("/health")
-async def health_check():
+async def health_post_check():
     return {"status": "ok"}
+
+
+@app.post("/fileserver")
+async def fileserver_post_check():
+    return {"status": "fileserver post ok"}
+
+
+@app.get("/fileserver")
+async def fileserver_get_check():
+    return {"status": "fileserver get ok"}
+
+
+@app.post("/webhook")
+async def webhook_post_check():
+    return {"status": "webhook post ok"}
+
+
+@app.get("/webhook")
+async def webhook_get_check():
+    return {"status": "webhook get ok"}
 
 
 if __name__ == "__main__":

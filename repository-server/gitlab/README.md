@@ -1,5 +1,11 @@
 # gitLab
 
+
+## 네트워크설정
+```bash
+docker network create file_network
+```
+
 ## 설치 및 ID/PW 설정
 ```bash
 git script/init.sh에 설정 

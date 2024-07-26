@@ -4,6 +4,7 @@
 1. network 생성
 ```bash
 docker network create shared_network
+docker network create report_network
 ```
 
 ## ollama 사용방법
