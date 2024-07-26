@@ -17,3 +17,11 @@ def read_hi():
 @app.post("/hi")
 def post_hi():
     return {"Hello": "hi post"}
+
+@app.get("/file")
+def read_file():
+    return {"Hello": "World from file"}
+
+@app.post("/file")
+def post_file():
+    return {"Hello": "World post from file"}
