@@ -14,7 +14,6 @@ load_dotenv()
 
 router = APIRouter()
 
-# TEST 코드 리뷰 작동 여부 테스트용
 @router.post("/code/review")
 async def llm_code_review(request : PromptRequest):        
     task = llm_code_review_task.apply_async(args=[request.prompt])

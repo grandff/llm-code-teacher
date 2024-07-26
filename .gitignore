@@ -1,10 +1,5 @@
-example.md
-example*.md
 nginx_proxy_manager/
 /fastapi/env/
-.env
-.env.dev
-.env.prod
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

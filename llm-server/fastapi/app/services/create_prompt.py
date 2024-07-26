@@ -16,12 +16,12 @@ def create_prompt(request : PromptCreateRequest) :
     
     # prompt 생성
     prompt = f"""
-    제가 작성한 코드와 커밋 메시지는 아래와 같습니다.
+    Below is a list of what I've been working on. 
 
     ---
-    커밋 제목: {title}
-    커밋 메시지 : {message}
-    파일 리스트 : 
+    Commit Title: {title}
+    Commit Message : {message}
+    File List : 
     """
     
     for key, value in added_files_content.items() :
