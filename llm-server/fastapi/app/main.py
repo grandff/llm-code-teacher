@@ -20,7 +20,6 @@ app.include_router(gitlab_hook.router)
 ALLOWED_DOMAINS = os.getenv("ALLOWED_DOMAINS", "").split(",")
 REQUIRED_HEADERS = {"API-Key": os.getenv("API_KEY")}
 
-
 @app.middleware("http")
 async def check_header_middleware(request: Request, call_next):
     headers = request.headers
@@ -42,6 +41,13 @@ async def check_header_middleware(request: Request, call_next):
     response = await call_next(request)
     return response
 
+@app.get("/")
+async def root_get_check():
+    return {"status": "root_get_ok"}
+
+@app.post("/")
+async def root_post_check():
+    return {"status": "root_post_ok"}
 
 @app.get("/health")
 async def health_get_check():
