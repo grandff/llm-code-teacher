@@ -29,7 +29,6 @@ services:
     networks:
       - file_network
 
-
   file_nginx:
     build:
       context: ./file_nginx
@@ -40,6 +39,23 @@ services:
     networks:
       - file_network
       - report_network
+
+  file_db:
+    build:
+      context: ./file_db
+      dockerfile: Dockerfile
+    container_name: file_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: file_db
+      MYSQL_USER: username
+      MYSQL_PASSWORD: password
+    ports:
+      - "9700:3306"
+    volumes:
+      - ./file_db/init:/docker-entrypoint-initdb.d
+    networks:
+      - file_network
 
 
 volumes:

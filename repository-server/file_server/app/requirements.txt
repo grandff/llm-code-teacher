@@ -2,3 +2,6 @@ streamlit==1.22.0
 altair==4.2.0
 fastapi==0.68.0
 uvicorn==0.15.0
+sqlalchemy==1.4.31
+pymysql==1.0.2
+cryptography==39.0.1
