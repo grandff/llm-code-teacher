@@ -26,6 +26,6 @@ INSERT IGNORE INTO users (username, gitlab_id) VALUES
 
 -- 사용자 ID를 서브쿼리로 조회하여 파일 데이터 삽입
 INSERT INTO files (user_id, file_name, file_path) VALUES
-((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', '/docker-entrypoint-initdb.d/file/test1.txt'),
-((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', '/docker-entrypoint-initdb.d/file/test2.txt'),
-((SELECT id FROM users WHERE username = 'johnsmith'), 'example.txt', '/docker-entrypoint-initdb.d/file/example.txt');
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', '/miyeonlim/gitlab_id_1/test1.txt'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', '/miyeonlim/gitlab_id_1/test2.txt'),
+((SELECT id FROM users WHERE username = 'johnsmith'), 'example.txt', '/johnsmith/gitlab_id_2/example.txt');

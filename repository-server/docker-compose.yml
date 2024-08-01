@@ -19,13 +19,14 @@ services:
     build:
       context: ./file_server
       dockerfile: Dockerfile
-    container_name: file_server
+    container_name: file_server 
     ports:
       - "9501:8000"
       - "9502:8501"
     volumes:
       - ./file_server/app:/app
       - ./file_server/supervisord.conf:/app/supervisord.conf
+      - shared_files:/shared_files  
     networks:
       - file_network
 
@@ -54,6 +55,7 @@ services:
       - "9700:3306"
     volumes:
       - ./file_db/init:/docker-entrypoint-initdb.d
+      - shared_files:/shared_files
     networks:
       - file_network
 
@@ -62,6 +64,7 @@ volumes:
   gitlab-data:
   gitlab-logs:
   gitlab-config:
+  shared_files: #공유파일
 
 networks:
   shared_network:

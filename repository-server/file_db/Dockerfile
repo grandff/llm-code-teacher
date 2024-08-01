@@ -8,3 +8,6 @@ RUN chmod -R 755 /docker-entrypoint-initdb.d
 
 # 포트 설정 (필요시)
 EXPOSE 3306
+
+# 파일 복사 및 MySQL 서버 시작
+CMD ["bash", "-c", "cp -r /docker-entrypoint-initdb.d/shared_files/* /shared_files/ && exec docker-entrypoint.sh mysqld"]
