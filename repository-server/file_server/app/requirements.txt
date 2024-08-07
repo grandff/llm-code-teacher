@@ -6,3 +6,4 @@ sqlalchemy==1.4.31
 pymysql==1.0.2
 cryptography==39.0.1
 aiofiles==23.1.0
+python-multipart==0.0.6

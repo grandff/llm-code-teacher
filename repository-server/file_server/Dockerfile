@@ -19,6 +19,10 @@ COPY ./app /app
 # supervisord.conf 파일을 컨테이너에 복사
 COPY ./supervisord.conf /app/supervisord.conf
 
+# 로그 디렉토리 생성
+RUN mkdir -p /var/log/supervisor && \
+    chown -R www-data:www-data /var/log/supervisor
+
 # 포트 설정(FastAPI,Streamlit)
 EXPOSE 8000  
 EXPOSE 8501

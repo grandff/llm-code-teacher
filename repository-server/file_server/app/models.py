@@ -14,9 +14,9 @@ class User(Base):
     gitlab_id = Column(String, unique=True, nullable=False)
 
     # 파일과의 관계 설정
-    files = relationship("File", back_populates="owner")
+    files = relationship("Files", back_populates="owner")
 
-class File(Base):
+class Files(Base):
     __tablename__ = "files"
 
     id = Column(Integer, primary_key=True, index=True)
