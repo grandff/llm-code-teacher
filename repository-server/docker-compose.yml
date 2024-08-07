@@ -2,7 +2,9 @@ version: '3.9'
 
 services:  
   gitlab:
-    image: gitlab/gitlab-ce:latest
+    build:
+      context: ./gitlab
+      dockerfile: Dockerfile
     container_name: gitlab
     ports:
       - "9000:80"

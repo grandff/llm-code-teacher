@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 로그 파일 경로 설정
+LOG_FILE="/var/log/gitlab_setup.log"
+
+# 로그 파일에 출력 저장
+exec > >(tee -a ${LOG_FILE} ) 2>&1
+
 # GitLab 서비스 초기화
 gitlab-ctl reconfigure
 
@@ -9,7 +15,6 @@ gitlab-ctl start
 # 관리자 비밀번호 설정
 echo "Setting GitLab root password..."
 gitlab-rails runner "user = User.where(id: 1).first; user.password = 'ComplexPassword123!'; user.password_confirmation = 'ComplexPassword123!'; user.save!"
-
 
 # 관리자 이메일 설정
 echo "Setting GitLab root email..."
@@ -31,9 +36,6 @@ end
 # 사용자 객체의 이메일과 커밋 이메일 업데이트
 user.update!(email: new_email, commit_email: new_email)
 EOF
-
-# 사용자 객체의 이메일과 커밋 이메일 업데이트
-user.update!(email: new_email, commit_email: new_email)
 
 # GitLab 서비스 재시작
 gitlab-ctl restart

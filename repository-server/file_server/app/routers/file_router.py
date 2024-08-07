@@ -4,12 +4,12 @@ from fastapi.responses import FileResponse
 from typing import List
 import logging
 import os
-
-router = APIRouter()
-
 from models import User, File
 from schemas import FilesResponse, UserResponse
 from database import get_db
+
+# 라우트 설정
+router = APIRouter()
 
 # 다운로드할 파일의 저장 위치
 SHARED_FILES_DIR = "/shared_files"  # 실제 공유 파일 경로로 설정
