@@ -7,7 +7,7 @@ USE file_db;
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
-    gitlab_id VARCHAR(255) NOT NULL UNIQUE
+    gitlab_id VARCHAR(255) NOT NULL
 );
 
 -- 파일 테이블 생성

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session, joinedload
 from fastapi.responses import FileResponse
-from typing import List
+from typing import List, Dict, Any
 import logging
 import os
 from models import User, Files
@@ -50,6 +50,7 @@ def read_files(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error fetching files: {e}")
         raise HTTPException(status_code=500, detail="Database query failed")
+    
 
 #파일 다운로드 
 @router.get("/download/{path:path}", response_class=FileResponse)
@@ -75,42 +76,73 @@ def download_file(path: str):
     
 
 # 파일 업로드
-@router.post("/upload/{username}/{git_id}/")   
-async def upload_file(username: str, git_id: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
+@router.post("/upload/{username}/{gitlab_id}/")   
+async def upload_file(username: str, gitlab_id: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
+        logger.info("@router.post upload come")
         # 디렉토리 경로 생성
-        directory_path = os.path.join(SHARED_FILES_DIR, username, git_id)
+        directory_path = os.path.join(SHARED_FILES_DIR, username, gitlab_id)
         os.makedirs(directory_path, exist_ok=True)
 
         # 파일 저장 경로
         file_location = os.path.join(directory_path, file.filename)
 
-        # 파일 저장
-        with open(file_location, "wb") as f:
-            f.write(await file.read())
-
         # 사용자 확인 및 추가
-        user = db.query(User).filter_by(username=username, gitlab_id=git_id).first()
+        user = db.query(User).filter_by(username=username, gitlab_id=gitlab_id).first()
+        
+        # 수정: 사용자 존재 여부 확인 및 새로운 사용자 생성
         if not user:
-            # 사용자 추가
-            user = User(username=username, gitlab_id=git_id)
+            user = User(username=username, gitlab_id=gitlab_id)
             db.add(user)
             try:
-                db.commit()
+                db.commit()        
+                # 사용자 객체를 새로 조회하여 ID 확인
+                user = db.query(User).filter_by(username=username, gitlab_id=gitlab_id).first()
+                if not user:
+                    raise HTTPException(status_code=500, detail="Failed to retrieve user after commit")
             except IntegrityError:
                 db.rollback()
-                # 이미 존재할 경우 에러 처리
-                user = db.query(User).filter_by(username=username, gitlab_id=git_id).first()
+                raise HTTPException(status_code=500, detail="Failed to retrieve user after rollback")
+
         
-        # 파일 정보 데이터베이스에 추가
+        logger.info("user 조회")
+        logger.info(user)
         db_file = Files(user_id=user.id, file_name=file.filename, file_path=file_location)
         db.add(db_file)
         db.commit()
 
+        # 파일 저장
+        with open(file_location, "wb") as f:
+            f.write(await file.read())
 
         logger.info(f"file '{file.filename}' saved at '{directory_path}'")
         return {"info": f"file '{file.filename}' saved at '{directory_path}'"}
     except Exception as e:
         logger.error(f"Error uploading file: {e}")
-        raise HTTPException(status_code=500, detail="File upload failed")
-    
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
+
+
+# 파일 및 디렉토리 목록 조회
+@router.get("/list_files", response_model=Dict[str, Any])
+def list_files(db: Session = Depends(get_db)):
+    try:
+        directory_contents = list_files_in_directory(SHARED_FILES_DIR)
+        return directory_contents
+    except Exception as e:
+        logger.error(f"Error listing files in directory: {e}")
+        raise HTTPException(status_code=500, detail="Error listing files in directory")
+
+
+def list_files_in_directory(directory_path: str) -> Dict[str, Any]:
+    """주어진 디렉토리의 파일 및 디렉토리 목록을 재귀적으로 반환합니다."""
+    result = {"path": directory_path, "files": [], "directories": []}
+    try:
+        for item in os.listdir(directory_path):
+            item_path = os.path.join(directory_path, item)
+            if os.path.isfile(item_path):
+                result["files"].append(item)
+            elif os.path.isdir(item_path):
+                result["directories"].append(list_files_in_directory(item_path))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing files in directory: {str(e)}")
+    return result
