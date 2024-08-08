@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Body
 from sqlalchemy.orm import Session, joinedload
 from fastapi.responses import FileResponse
+from sqlalchemy.exc import IntegrityError
 from typing import List, Dict, Any
-import logging
-import os
 from models import User, Files
 from schemas import FilesResponse, UserResponse
 from database import get_db
-from sqlalchemy.exc import IntegrityError
+import logging
+import os
+import urllib.parse
+
 
 # 라우트 설정
 router = APIRouter()
@@ -57,10 +59,11 @@ def read_files(db: Session = Depends(get_db)):
 def download_file(path: str):
     try:
         # 파일이 저장된 경로를 결합합니다.
-        file_path = os.path.join(SHARED_FILES_DIR, path)
+        file_path = os.path.join("/", path)
+        #file_path = path
 
         # 디버깅을 위해 경로를 로그로 출력합니다
-        logger.info(f"Resolved file path: {file_path}")
+        logger.error(f"Resolved file path: {file_path}")
 
         # 파일이 존재하지 않는 경우
         if not os.path.exists(file_path):
@@ -73,18 +76,17 @@ def download_file(path: str):
     except Exception as e:
         logger.error(f"Error downloading file: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="File download failed")
-    
+
 
 # 파일 업로드
-@router.post("/upload/{username}/{gitlab_id}/")   
-async def upload_file(username: str, gitlab_id: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
+@router.post("/upload/")   
+async def upload_file(username: str = Body(...), gitlab_id: str = Body(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
         logger.info("@router.post upload come")
         # 디렉토리 경로 생성
         directory_path = os.path.join(SHARED_FILES_DIR, username, gitlab_id)
         os.makedirs(directory_path, exist_ok=True)
 
-        # 파일 저장 경로
         file_location = os.path.join(directory_path, file.filename)
 
         # 사용자 확인 및 추가
@@ -105,8 +107,6 @@ async def upload_file(username: str, gitlab_id: str, file: UploadFile = File(...
                 raise HTTPException(status_code=500, detail="Failed to retrieve user after rollback")
 
         
-        logger.info("user 조회")
-        logger.info(user)
         db_file = Files(user_id=user.id, file_name=file.filename, file_path=file_location)
         db.add(db_file)
         db.commit()
@@ -119,8 +119,7 @@ async def upload_file(username: str, gitlab_id: str, file: UploadFile = File(...
         return {"info": f"file '{file.filename}' saved at '{directory_path}'"}
     except Exception as e:
         logger.error(f"Error uploading file: {e}")
-        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
-
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")   
 
 # 파일 및 디렉토리 목록 조회
 @router.get("/list_files", response_model=Dict[str, Any])

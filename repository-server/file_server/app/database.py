@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base
 
 # 데이터베이스 설정
-DATABASE_URL = "mysql+pymysql://username:password@file_db:3306/file_db"
+DATABASE_URL = "mysql+pymysql://username:password@file_db:3306/file_db?charset=utf8mb4"
 
 # SQLAlchemy 엔진 및 세션 설정
 engine = create_engine(DATABASE_URL)

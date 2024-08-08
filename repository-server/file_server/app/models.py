@@ -11,7 +11,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False)
-    gitlab_id = Column(String, unique=True, nullable=False)
+    gitlab_id = Column(String, nullable=False)
 
     # 파일과의 관계 설정
     files = relationship("Files", back_populates="owner")

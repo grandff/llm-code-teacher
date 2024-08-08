@@ -1,4 +1,4 @@
-# LLM Server
+# file_server
 
 ## FastAPI
 - 사용자가 FastAPI 서버로 HTTP 요청을 보냄
