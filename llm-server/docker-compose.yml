@@ -37,6 +37,22 @@ services:
     networks:
       - app_network
 
+  flower:
+    build:
+      context: ./fastapi
+      dockerfile: Dockerfile
+    command: celery -A celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - fastapi
+      - redis
+      - celery
+    networks:
+      - app_network
+
   nginx:
     container_name: nginx
     build:

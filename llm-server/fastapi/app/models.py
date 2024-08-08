@@ -17,4 +17,8 @@ class PromptCreateRequest(BaseModel) :
     message_dict : dict    
     added_files_content : dict
     modified_files_content : dict
-    
+
+class PromptCreateRequestV1(BaseModel) :
+    file_ext : str
+    file_name : str
+    file_data : str

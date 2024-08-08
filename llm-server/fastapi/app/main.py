@@ -1,5 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
 from models import ErrorResponse
 from dotenv import load_dotenv
 import uvicorn
@@ -20,17 +23,32 @@ app.include_router(gitlab_hook.router)
 ALLOWED_DOMAINS = os.getenv("ALLOWED_DOMAINS", "").split(",")
 REQUIRED_HEADERS = {"API-Key": os.getenv("API_KEY")}
 
+# HTTP Basic 인증 설정
+# 사용자 이름과 비밀번호를 이용해서 인증
+security = HTTPBasic()
+
+# 인증 함수
+# Httpbasiccredentials를 종속성으로 받아옴
+def docs_auth(credentials: HTTPBasicCredentials = Depends(security)) :
+    correct_username = os.getenv("DOCS_USERNAME")
+    correct_password = os.getenv("DOCS_PASSWORD")
+    if credentials.username != correct_username or credentials.password != correct_password:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
 @app.middleware("http")
 async def check_header_middleware(request: Request, call_next):
     headers = request.headers
+    
+    # /docs 및 /openapi.json 경로에 대한 예외 처리
+    if request.url.path.startswith("/docs") or request.url.path.startswith("/openapi.json"):
+        response = await call_next(request)
+        return response
 
-    # Verify domain
-    # TODO 도메인 정해지면 그때 바꾸기 + json으로 리턴
+    # Verify domain    
     # if "host" not in headers or headers["host"] not in ALLOWED_DOMAINS:
             # error_response = ErrorResponse(detail="Invalid header")
             # return JSONResponse(status_code=403, content=error_response.dict())
-    #     raise HTTPException(status_code=403, detail="Domain not allowed")
-
+    #     raise HTTPException(status_code=403, detail="Domain not allowed")    
     
     # Verify headers    
     for key, value in REQUIRED_HEADERS.items():        
@@ -57,11 +75,9 @@ async def health_get_check():
 async def health_post_check():
     return {"status": "ok"}
 
-
 @app.post("/fileserver")
 async def fileserver_post_check():
     return {"status": "fileserver post ok"}
-
 
 @app.get("/fileserver")
 async def fileserver_get_check():
@@ -77,6 +93,16 @@ async def webhook_post_check():
 async def webhook_get_check():
     return {"status": "webhook get ok"}
 
+# swagger ui endpoint
+# 자동생성된 api 문서에 포함 안되도록 하기 위해 include false 옵션 부여
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html(credentials: HTTPBasicCredentials = Depends(docs_auth)):
+    return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
+
+# OpenAPI 스키마 엔드포인트
+@app.get("/openapi.json", include_in_schema=False)
+async def get_open_api_endpoint(credentials: HTTPBasicCredentials = Depends(docs_auth)):
+    return JSONResponse(get_openapi(title="docs", version="1.0.0", routes=app.routes))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

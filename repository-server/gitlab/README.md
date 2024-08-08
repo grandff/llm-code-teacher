@@ -26,7 +26,7 @@ git config --global user.email
 ```
 
 ## webhook 환경구축
-1. amdin Area 클릭
+1. admin Area 클릭
 ![스크린샷 2024-07-11 오전 8 45 48](https://github.com/grandff/llm-code-teacher/assets/29056140/243a5a64-be41-4566-ba7c-c1b2bff6354e)
 
 2. Setting > Network > Outbound requests> 클릭

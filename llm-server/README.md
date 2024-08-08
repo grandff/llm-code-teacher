@@ -12,3 +12,6 @@
 
 ## Celery
 - Celery 워커는 큐에 있는 작업을 Redis로부터 가져와서 처리
+
+## 참고자료
+(파이선 패키지 안쓰는 거 정리)[https://senslife.tistory.com/74]
