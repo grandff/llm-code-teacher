@@ -60,8 +60,7 @@ def download_file(path: str):
     try:
         # 파일이 저장된 경로를 결합합니다.
         file_path = os.path.join("/", path)
-        #file_path = path
-
+        
         # 디버깅을 위해 경로를 로그로 출력합니다
         logger.error(f"Resolved file path: {file_path}")
 
