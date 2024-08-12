@@ -6,7 +6,7 @@ USE file_db;
 -- 사용자 정보 테이블 생성
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL
 );
 
 -- 파일 테이블 생성
@@ -28,4 +28,6 @@ INSERT IGNORE INTO users (username) VALUES
 INSERT INTO files (user_id, file_name, file_path, created_at) VALUES
 ((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', '/20240812/miyeonlim/test1.txt', '2024-08-12 10:00:00'),
 ((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', '/20240812/miyeonlim/test2.txt', '2024-08-12 11:00:00'),
-((SELECT id FROM users WHERE username = 'johnsmith'), 'example.txt', '/20240812/johnsmith/example.txt', '2024-08-12 12:00:00');
+((SELECT id FROM users WHERE username = 'johnsmith'), 'example.txt', '/20240812/johnsmith/example.txt', '2024-08-12 12:00:00'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', '/20240813/miyeonlim/test1.txt', '2024-08-13 10:00:00'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', '/20240813/miyeonlim/test2.txt', '2024-08-13 11:00:00');
