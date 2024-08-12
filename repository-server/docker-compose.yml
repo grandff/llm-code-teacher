@@ -26,7 +26,7 @@ services:
       - "9501:8000"
       - "9502:8501"
     volumes:
-      - ./file_server/app:/app
+      - ./file_server:/file_server/app
       - ./file_server/supervisord.conf:/app/supervisord.conf
       - shared_files:/shared_files  
     networks:

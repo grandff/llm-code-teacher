@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -10,8 +10,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, nullable=False)
-    gitlab_id = Column(String, nullable=False)
+    username = Column(String(255), nullable=False)
 
     # 파일과의 관계 설정
     files = relationship("Files", back_populates="owner")
@@ -21,8 +20,9 @@ class Files(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    file_name = Column(String, nullable=False)
-    file_path = Column(String, nullable=False)
+    file_name = Column(String(255), nullable=False)
+    file_path = Column(String(255), nullable=False)
+    created_at = Column(DateTime)
 
     # 사용자와의 관계 설정
     owner = relationship("User", back_populates="files")
