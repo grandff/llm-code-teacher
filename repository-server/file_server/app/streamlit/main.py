@@ -34,31 +34,84 @@ def get_users_for_date(conn, selected_date):
     cursor.close()
     return [user[0] for user in users]
 
-# Streamlit 애플리케이션
+def format_date(date_str):
+    """날짜 문자열을 'YYYY-MM-DD' 형식으로 변환"""
+    return f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
+
+
+# 사용자 ID를 username으로 조회하는 함수
+def get_user_id_by_username(conn, username):
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id 
+        FROM users 
+        WHERE username = %s
+    """, (username,))
+    user_id = cursor.fetchone()
+    cursor.close()
+    return user_id[0] if user_id else None
+
+# 선택된 날짜에 대한 파일 목록을 조회하는 함수
+def get_files_for_date(conn, selected_date, username):
+    user_id = get_user_id_by_username(conn, username)
+    if not user_id:
+        return []  # 사용자가 존재하지 않으면 빈 리스트 반환
+
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT file_name, file_path 
+        FROM files 
+        WHERE DATE(created_at) = %s AND user_id = %s
+    """, (selected_date, user_id))
+    files = cursor.fetchall()
+    cursor.close()
+    return files
+
+
 def main():
-    st.title("Hello, Streamlit!")
+    #st.title("Hello, Streamlit!")
 
     conn = create_connection()
-
-    # 사이드바에 날짜 선택 상자 생성
-    st.sidebar.header("날짜 선택")
+    
+    # 그룹 1
+    st.sidebar.header("메뉴")
+    
+    # 사용 가능한 날짜 목록 가져오기
     available_dates = get_available_dates(conn)
-    selected_date = st.sidebar.radio("날짜를 선택하세요", available_dates)
 
-    # 선택된 날짜에 따라 사용자 리스트를 사이드바에 표시
-    if selected_date:
-        users_list = get_users_for_date(conn, selected_date)
-        
-        # 사이드바에 선택된 날짜의 사용자들 리스트 표시
-        st.sidebar.header(f"{selected_date}의 사용자들")
-        if users_list:
-            for user in users_list:
-                st.sidebar.write(f"- {user}")
+    selected_user = None  # 선택된 사용자 저장
+    selected_date = None  # 선택된 날짜 저장
+
+    # 날짜를 메뉴 항목으로 추가
+    for i, date in enumerate(available_dates, start=1):
+        formatted_date = format_date(date)  # 날짜 형식 변환
+        with st.sidebar.expander(f"{formatted_date}", expanded=False):
+            users = get_users_for_date(conn, date)
+            if users:
+                for user in users:
+                   if st.button(user, key=f"user_button_{i}_{user}", use_container_width=True):
+                        selected_user = user  # 선택된 사용자 저장
+                        selected_date = formatted_date  # 선택된 날짜 저장
+            else:
+                st.write("사용자가 없습니다.")
+
+
+    # 선택된 날짜와 사용자들을 메인 화면에 표시
+    if selected_date and selected_user:
+        st.write(f"선택된 날짜: {selected_date}")
+        st.write(f"선택된 사용자: {selected_user}")
+
+        # 선택한 날짜에 대한 파일 리스트 가져오기
+        files = get_files_for_date(conn, selected_date, selected_user)
+        if files:
+            st.write("선택된 날짜의 파일 리스트:")
+            for file_name, file_path in files:
+                st.write(f"- {file_name} (경로: {file_path})")
         else:
-            st.sidebar.write("선택된 날짜에 관련된 사용자가 없습니다.")
+            st.write("해당 날짜에 파일이 없습니다.")
 
     conn.close()
-
+    
 
 if __name__ == "__main__":
     main()

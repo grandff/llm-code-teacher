@@ -62,7 +62,12 @@ async def upload_file(
                 db.rollback()
                 raise HTTPException(status_code=500, detail="Failed to retrieve user after rollback")
 
-        
+        # 기존 파일 정보 삭제 (경로가 동일한 경우)
+        existing_file = db.query(Files).filter_by(user_id=user.id, file_path=file_location).first()
+        if existing_file:
+            db.delete(existing_file)
+            db.commit()  # 변경 사항 커밋
+
         db_file = Files(user_id=user.id, file_name=file.filename, file_path=file_location)
         db.add(db_file)
         db.commit()
