@@ -87,7 +87,8 @@ async def upload_file(
 def download_file(path: str):
     try:
         # 파일이 저장된 경로를 결합합니다.
-        file_path = os.path.join(SHARED_FILES_DIR, path)
+        file_path = os.path.join("/", path)
+        logger.error(f"File name : {file_path}")
         
         # 파일이 존재하지 않는 경우
         if not os.path.exists(file_path):

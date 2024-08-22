@@ -18,6 +18,7 @@ FILE_PATH_COLUMN = "다운로드 링크"
 st.set_page_config(layout="wide")  # 페이지 레이아웃을 넓게 설정
 def display_mainboard(conn, selected_date, selected_user,selected_user_id):
     
+
     # 선택한 날짜에 대한 파일 리스트 가져오기
     files = get_files_for_date(conn, selected_date, selected_user_id)
     if files:

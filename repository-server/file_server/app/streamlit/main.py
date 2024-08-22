@@ -43,8 +43,8 @@ def main():
     if selected_date and selected_user:
         st.header("파일 리스트")
         # 날짜 및 사용자 입력 필드
-        selected_date = st.text_input("날짜 입력 (형식: YYYY-MM-DD)", "2024-08-13")
-        selected_user = st.text_input("사용자 입력", "miyeonlim")
+        #selected_date = st.text_input("날짜 입력 (형식: YYYY-MM-DD)", "2024-08-13")
+        #selected_user = st.text_input("사용자 입력", "miyeonlim")
 
         st.markdown(
             f"<h4>날짜: {selected_date} 사용자: {selected_user}</h4>",
