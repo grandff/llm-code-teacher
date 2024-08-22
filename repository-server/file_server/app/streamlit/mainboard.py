@@ -15,10 +15,9 @@ CREATED_AT_COLUMN = "생성시간"
 FILE_PATH_COLUMN = "다운로드 링크"
 
 # 페이지 설정
-st.set_page_config(layout="wide")  # 페이지 레이아웃을 넓게 설정
+#st.set_page_config(layout="wide")  # 페이지 레이아웃을 넓게 설정
 def display_mainboard(conn, selected_date, selected_user,selected_user_id):
     
-
     # 선택한 날짜에 대한 파일 리스트 가져오기
     files = get_files_for_date(conn, selected_date, selected_user_id)
     if files:
@@ -53,7 +52,7 @@ def display_mainboard(conn, selected_date, selected_user,selected_user_id):
         data_df,
         column_config={
             DOWNLOAD_CHECK_COLUMN: st.column_config.CheckboxColumn(help="want download check"),
-            FILE_PATH_COLUMN : st.column_config.LinkColumn("FILE_PATH_COLUMN"),
+            FILE_PATH_COLUMN : st.column_config.LinkColumn(FILE_PATH_COLUMN),
         },
         hide_index=False
     )
@@ -62,52 +61,3 @@ def display_mainboard(conn, selected_date, selected_user,selected_user_id):
     st.session_state.selected_user = selected_user
     st.session_state.selected_date = selected_date
     st.session_state.selected_user_id = selected_user_id
-
-    # 다운로드 버튼 추가
-    if st.button("선택한 파일 다운로드"):
-        selected_files = edited_df[edited_df[DOWNLOAD_CHECK_COLUMN]]
-        if not selected_files.empty:
-            for index, row in selected_files.iterrows():
-                file_path = row[FILE_PATH_COLUMN]
-                file_name = row[FILE_NAME_COLUMN]
-                # 파일 다운로드 로직
-                hardcoded_url = "http://localhost:9501/download"+file_path
-                st.write(f"file_path: {file_path}")   
-                st.write(f"file_name: {file_name}")
-                st.write(f"hardcoded_url: {hardcoded_url}")   
-            
-                # 비동기 파일 다운로드 요청
-                response = asyncio.run(download_file(hardcoded_url))  # 비동기 함수 호출4
-
-                if response.status_code == 200:
-                    st.success(f"{file_path} 다운로드가 완료되었습니다.")
-                else:
-                    st.error(f"{file_path} 다운로드에 실패했습니다.")
-        else:
-            st.warning("다운로드할 파일이 선택되지 않았습니다.")
-
-
-async def download_file(url):
-    async with httpx.AsyncClient() as client:
-        # 다운로드할 파일의 저장 위치
-        #SHARED_FILES_DIR = "/shared_files"  # 실제 공유 파일 경로로 설정
-        file_path = "/shared_files/download/20240813/miyeonlim/test1.txt"
-        st.write(f"response: {file_path}")
-        return FileResponse(file_path, filename=os.path.basename(url))
-        #response = await client.get(url)
-
-        #st.write(f"response: {response}")   
-        #if response.status_code == 200:
-            # 파일을 저장할 경로 설정
-            #download_dir = "downloads"
-
-            # 디렉토리가 없으면 생성
-            #if not os.path.exists(download_dir):
-            #    os.makedirs(download_dir)
-            
-            #download_path = os.path.join(download_dir, os.path.basename(url))  # 파일 경로 설정
-            #with open("A", "wb") as f:
-                #f.write(response.content)
-            #return response  # 성공적으로 다운로드한 응답 반환
-        #else:
-            #return response  # 실패한 경우 응답 반환

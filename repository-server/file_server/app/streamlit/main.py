@@ -5,6 +5,7 @@ from mainboard import display_mainboard
 
 
 def main():
+    st.set_page_config(layout="wide")  # 여기 추가
     
     #database 연결
     conn = create_connection()
@@ -50,7 +51,7 @@ def main():
             f"<h4>날짜: {selected_date} 사용자: {selected_user}</h4>",
             unsafe_allow_html=True
         )
-        st.write("---------------------------------------------------------------")
+        st.write("----------------------------------------------------------------------------")
 
         # mainboard 내용 표시
         display_mainboard(conn, selected_date, selected_user, selected_user_id)
