@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Body
 from sqlalchemy.orm import Session, joinedload
 from fastapi.responses import FileResponse
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import text, func
 from typing import List, Dict, Any
 from models import User, Files
 from schemas import FilesResponse, UserResponse
@@ -21,10 +22,6 @@ SHARED_FILES_DIR = "/shared_files"  # 실제 공유 파일 경로로 설정
 
 # 로그 설정
 logger = logging.getLogger(__name__)
-
-@router.get("/test")
-def get_test():
-    return {"Hello": "test router"}
 
 # 파일 업로드
 @router.post("/upload/")   
@@ -155,4 +152,78 @@ def read_files(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error fetching files: {e}")
         raise HTTPException(status_code=500, detail="Database query failed")
+
+
+#사용 가능한 날짜 목록을 반환
+@router.get("/available_dates", response_model=Dict[str, List[str]])
+def get_available_dates(db: Session = Depends(get_db)):
+    try:
+        logger.info("Fetching available dates")
+
+        # 직접 SQL 쿼리 실행
+        query = "SELECT DISTINCT DATE_FORMAT(created_at, '%Y%m%d') AS date FROM files ORDER BY date DESC"
+        result = db.execute(query)
+        dates = result.fetchall()
+
+        # 날짜 리스트 생성
+        available_dates = [date[0] for date in dates]
+        logger.info(f"Available dates: {available_dates}")
+
+        # 딕셔너리 형식으로 반환
+        return {"dates": available_dates}
+
+    except Exception as e:
+        logger.error(f"Error fetching available dates: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve available dates")
+
+
+# 선택된 날짜에 대한 사용자들의 리스트를 반환
+@router.get("/users_for_date", response_model=Dict[str, List[Dict[str, Any]]])
+def get_users_for_date(selected_date: str, db: Session = Depends(get_db)):
+    try:
+        logger.info(f"Fetching users for date: {selected_date}")
+
+        # 서브쿼리 정의
+        subquery = (
+            db.query(Files.user_id)
+            .filter(func.date_format(Files.created_at, '%Y%m%d') == selected_date)
+            .distinct()
+            .subquery()
+        )
+
+        # 메인 쿼리
+        users = (
+            db.query(User.username, User.id)
+            .join(subquery, User.id == subquery.c.user_id)
+            .all()
+        )
+        
+        # 결과를 JSON 형식으로 변환하여 반환
+        result_list = [{"username": user.username, "id": user.id} for user in users]
+        return {"userList": result_list}
+
+    except Exception as e:
+        logger.error(f"Error fetching users for date {selected_date}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve users")
     
+
+
+# # 선택된 날짜에 대한 파일 목록을 조회하는 함수
+@router.get("/files_for_date", response_model=Dict[str, List[Dict[str, Any]]])
+def get_files_for_date(selected_date: str, user_id: int, db: Session = Depends(get_db)):
+    try:
+        logger.info(f"Fetching files for date {selected_date} and user_id {user_id}")
+
+        files = (
+            db.query(Files)
+            .filter(func.date(Files.created_at) == selected_date, Files.user_id == user_id)
+            .all()
+        )
+
+        # 결과를 JSON 형식으로 변환하여 반환
+        file_list = [{"file_name": file.file_name, "file_path": file.file_path, "created_at": file.created_at} for file in files]
+        return {"fileList": file_list}
+
+    except Exception as e:
+        logger.error(f"Error fetching files for date {selected_date} and user_id {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve files")

@@ -1,14 +1,10 @@
 import streamlit as st
-from database import create_connection, get_files_for_date
 from sidebar import display_sidebar
 from mainboard import display_mainboard 
 
 
 def main():
-    st.set_page_config(layout="wide")  # 여기 추가
-    
-    #database 연결
-    conn = create_connection()
+    st.set_page_config(layout="wide")
 
     # 세션 상태 확인
     #st.write(f"세션: {st.session_state}")   
@@ -20,10 +16,8 @@ def main():
     if 'selected_user_id' not in st.session_state:
         st.session_state.selected_user_id = None
 
-
-
     # 사이드바에서 사용자와 날짜 선택시
-    selected_user, selected_date, selected_user_id = display_sidebar(conn)
+    selected_user, selected_date, selected_user_id = display_sidebar()
     if selected_user:
         st.session_state.selected_user = selected_user
     if selected_date:
@@ -32,32 +26,28 @@ def main():
         st.session_state.selected_user_id = selected_user_id
 
     # 기존의 데이터가 존재하는 경우
-    if 'selected_user' in st.session_state:
-        selected_user = st.session_state.selected_user
-    if 'selected_date' in st.session_state:
-        selected_date = st.session_state.selected_date
-    if 'selected_user_id' in st.session_state:
-        selected_user_id = st.session_state.selected_user_id
+    selected_user = st.session_state.selected_user
+    selected_date = st.session_state.selected_date
+    selected_user_id = st.session_state.selected_user_id
     
 
     
     if selected_date and selected_user:
         st.header("파일 리스트")
-        # 날짜 및 사용자 입력 필드
-        #selected_date = st.text_input("날짜 입력 (형식: YYYY-MM-DD)", "2024-08-13")
-        #selected_user = st.text_input("사용자 입력", "miyeonlim")
-
         st.markdown(
-            f"<h4>날짜: {selected_date} 사용자: {selected_user}</h4>",
+            f"""
+            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                <h5 style="margin: 0; font-size: 14px;">날짜 : <span style="color: #3498DB;">{selected_date}</span></h5>
+                <h5 style="margin: 0; font-size: 14px; margin-left: 5px;">사용자 : <span style="color: #3498DB;">{selected_user}</span></h5>
+            </div>
+            <hr style="border: 1px solid #ccc; margin-top: 2px;">
+            """,
             unsafe_allow_html=True
         )
-        st.write("----------------------------------------------------------------------------")
-
+        
         # mainboard 내용 표시
-        display_mainboard(conn, selected_date, selected_user, selected_user_id)
+        display_mainboard(selected_date, selected_user, selected_user_id)
 
-    conn.close()
-    
 
 if __name__ == "__main__":
     main()
