@@ -95,9 +95,15 @@ def llm_code_review_task(prompt, user_name) :
         logging.info("start send to file server")
         file_send_response = send_to_file_server(file_info, user_name)
         logging.info("end send to file server")
-        logging.info(file_send_response.json())
-        
-        return { "response" : ai_response, "file_info" : file_info, "file_response" : file_send_response.json()}
+        logging.info(file_send_response)
+        try :                
+            logging.info(file_send_response.json())
+            file_response = file_send_response.json()
+        except Exception as e :
+            logging.error(e)
+            file_response = file_send_response
+        # FIXME 자꾸 json 오류 나서 일단 빈값으로 리턴
+        return { "response" : ai_response, "file_info" : file_info, "file_response" : ""}
     except httpx.HTTPStatusError as exc:
         return str(exc)
 
@@ -160,14 +166,14 @@ def save_md_to_file(markdown_str : str, directory : str, file_name : str) :
 # 파일서버로 보고서 파일 전송
 def send_to_file_server(file_info : dict, user_name : str) :
     # 오늘 날짜
-    today_date = datetime.now().strftime("%Y%m%d")
+    # today_date = datetime.now().strftime("%Y%m%d")
     # 파일 경로    
     files = {'file': open(file_info['file_path'], 'rb')}
     # palyload
     body = {
         "username" : user_name,
-        "gitlab_id" : "123",   # FIXME 곧 지울 예정
-        "regdate" : today_date, # FIXME 컬럼 이름이 정해지면 변경해야함. 임시로 컬럼이름 이렇게 설정함.
+        # "gitlab_id" : "123",   # FIXME 곧 지울 예정
+        # "regdate" : today_date, # FIXME 컬럼 이름이 정해지면 변경해야함. 임시로 컬럼이름 이렇게 설정함.
     }
     response = requests.post(FILE_UPLOAD_URL, files=files, data=body)
     

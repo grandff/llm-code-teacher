@@ -45,21 +45,8 @@ async def gitlab_webhook(request : Request):
     commit_sha = payload['checkout_sha']
     commits = payload['commits']
     
-    if not os.path.exists(LOCAL_REPO_PATH) :
-        # 레포지토리 정보가 없다면 클론
-        repo = git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
-    else :
-        # 이미 존재하는 경우 변경 사항만 가져옴        
-        repo = git.Repo(LOCAL_REPO_PATH)
-        repo.git.checkout(commit_sha)
-    #     logging.error(e)
-    #     # 로컬 디렉토리 정리
-    #     if os.path.exists(LOCAL_REPO_PATH):
-    #         shutil.rmtree(LOCAL_REPO_PATH)
-    #     # 리포지토리 클론
-    #     repo = git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
-    #     # 특정 커밋으로 체크아웃
-    #     repo.git.checkout(commit_sha)
+    # 레포지토리 체크아웃
+    checkout_repository(repo_url, commit_sha)
         
     try :                
         # 수정된 파일 목록 가져오기 및 파일 내용 읽기
@@ -106,3 +93,23 @@ def add_task_to_llm_v1(request : PromptCreateRequestV1, user_name : str ) :
     # Celery에 작업 등록
     task = llm_code_review_task.apply_async(args=[user_prompt, user_name ])    
     print(task.id)    
+
+# gitlab repository check
+def checkout_repository(repo_url : str, commit_sha : str) :
+    try :
+        if not os.path.exists(LOCAL_REPO_PATH) :
+            # 레포지토리 정보가 없다면 클론
+            git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
+        else :
+            # 이미 존재하는 경우 변경 사항만 가져옴        
+            repo = git.Repo(LOCAL_REPO_PATH)
+            repo.git.checkout(commit_sha)
+    except Exception as e :    
+        logging.error(e)
+        # 로컬 디렉토리 정리
+        if os.path.exists(LOCAL_REPO_PATH):
+            shutil.rmtree(LOCAL_REPO_PATH)
+        # 리포지토리 클론
+        repo = git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
+        # 특정 커밋으로 체크아웃
+        repo.git.checkout(commit_sha)
