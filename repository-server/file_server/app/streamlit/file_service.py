@@ -31,7 +31,6 @@ def get_users_for_date(selected_date):
         if response.status_code == 200:
             data = response.json()
             users = data.get('userList', [])
-            logger.error(f"users: {users}")
             return users
         else:
             print(f"Failed to retrieve users: {response.status_code}")
@@ -56,7 +55,6 @@ def get_files_for_date(selected_date: str, user_id: int):
             data = response.json()
             # 'fileList' 키로 파일 목록을 추출
             file_list = data.get("fileList", [])
-            logger.error(f"file_list : {file_list}")
             return file_list
         else:
             print(f"Failed to retrieve files: {response.status_code}")

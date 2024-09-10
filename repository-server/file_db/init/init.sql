@@ -26,8 +26,8 @@ INSERT IGNORE INTO users (username) VALUES
 
 -- 사용자 ID를 서브쿼리로 조회하여 파일 데이터 삽입
 INSERT INTO files (user_id, file_name, file_path, created_at) VALUES
-((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', 'shared_files/20240812/miyeonlim/test1.txt', '2024-08-12 10:00:00'),
-((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', 'shared_files/20240812/miyeonlim/test2.txt', '2024-08-12 11:00:00'),
-((SELECT id FROM users WHERE username = 'johnsmith'), 'example.txt', 'shared_files/20240812/johnsmith/example.txt', '2024-08-12 12:00:00'),
-((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', 'shared_files/20240813/miyeonlim/test1.txt', '2024-08-13 10:00:00'),
-((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', 'shared_files/20240813/miyeonlim/test2.txt', '2024-08-13 11:00:00');
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', '/shared_files/20240812/miyeonlim/test1.txt', '2024-08-12 10:00:00'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', '/shared_files/20240812/miyeonlim/test2.txt', '2024-08-12 11:00:00'),
+((SELECT id FROM users WHERE username = 'johnsmith'), 'example.txt', '/shared_files/20240812/johnsmith/example.txt', '2024-08-12 12:00:00'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test1.txt', '/shared_files/20240813/miyeonlim/test1.txt', '2024-08-13 10:00:00'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'test2.txt', '/shared_files/20240813/miyeonlim/test2.txt', '2024-08-13 11:00:00');

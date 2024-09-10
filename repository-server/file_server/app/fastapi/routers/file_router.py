@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Body
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session, joinedload
 from fastapi.responses import FileResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text, func
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from models import User, Files
 from schemas import FilesResponse, UserResponse
 from database import get_db
 from datetime import datetime, timezone
 import logging
 import os
+from PyPDF2 import PdfReader
 import urllib.parse
 
 
@@ -21,6 +23,14 @@ router = APIRouter()
 SHARED_FILES_DIR = "/shared_files"  # 실제 공유 파일 경로로 설정
 
 # 로그 설정
+logging.basicConfig(
+    level=logging.INFO,  # 로그 수준 설정
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/supervisor/fastapi.log'),  # 로그 파일 경로
+        logging.StreamHandler()  # 콘솔에 로그 출력
+    ]
+)
 logger = logging.getLogger(__name__)
 
 # 파일 업로드
@@ -227,3 +237,178 @@ def get_files_for_date(selected_date: str, user_id: int, db: Session = Depends(g
     except Exception as e:
         logger.error(f"Error fetching files for date {selected_date} and user_id {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve files")
+
+
+
+# 파일 미리보기 함수
+@router.get("/preview_file/")
+async def preview_file(file_path: str, db: Session = Depends(get_db)) -> Union[str, dict]:
+    try:
+        # 실제 파일 경로를 결합
+        #full_file_path = os.path.join(SHARED_FILES_DIR, file_path)
+        full_file_path = file_path
+        
+        logger.info(f"Request to preview file: {full_file_path}")
+
+        # 파일이 존재하는지 확인
+        if not os.path.exists(full_file_path):
+            logger.error(f"File {full_file_path} does not exist")
+            raise HTTPException(status_code=404, detail="File not found")
+
+        # 파일의 확장자에 따라 콘텐츠를 생성
+        file_extension = os.path.splitext(full_file_path)[1].lower()
+        
+        if file_extension == ".txt":
+            # 텍스트 파일을 읽고 인코딩 후 iframe으로 미리 보기
+            with open(full_file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            encoded_content = content.replace("\n", "%0A").replace(" ", "%20").replace("'", "%27").replace('"', "%22")
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <title>텍스트 파일 미리보기</title>
+                <style>
+                    body {{
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background-color: #f4f4f4;
+                    }}
+                    iframe {{
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                    }}
+                </style>
+            </head>
+            <body>
+                <iframe src="data:text/plain;charset=utf-8,{encoded_content}"></iframe>
+            </body>
+            </html>
+            """
+            return HTMLResponse(content=html_content)
+        
+        elif file_extension == ".pdf":
+            file_url = f"http://localhost:9501/exists_files{file_path}"
+            
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <title>PDF 파일 미리보기</title>
+                <style>
+                    html, body {{
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                    }}
+                    iframe {{
+                        border: none;
+                        width: 100vw;  /* 전체 뷰포트 너비 */
+                        height: 100vh; /* 전체 뷰포트 높이 */
+                    }}
+                </style>
+            </head>
+            <body>
+                <iframe src="{file_url}"></iframe>
+            </body>
+            </html>
+            """
+            return HTMLResponse(content=html_content)
+            
+        elif file_extension in [".xls", ".xlsx"]:
+            import pandas as pd
+            df = pd.read_excel(full_file_path)
+            html_table = df.to_html(classes='table table-striped', index=False)
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <title>엑셀 파일 미리보기</title>
+                <style>
+                    body {{
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background-color: #f4f4f4;
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                    }}
+                    th, td {{
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                    }}
+                    th {{
+                        background-color: #f2f2f2;
+                    }}
+                </style>
+            </head>
+            <body>
+                {html_table}
+            </body>
+            </html>
+            """
+            return HTMLResponse(content=html_content)
+        
+        
+        elif file_extension in [".jpg", ".jpeg", ".png", ".gif"]:  # 이미지 파일 확장자 확인
+            file_url = f"http://localhost:9501/exists_files{file_path}"
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <title>이미지 파일 미리보기</title>
+                <style>
+                    html, body {{
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        background-color: #f0f0f0; /* 배경색 설정 */
+                    }}
+                    img {{
+                        max-width: 100%;  /* 이미지 최대 너비 */
+                        max-height: 100%; /* 이미지 최대 높이 */
+                    }}
+                </style>
+            </head>
+            <body>
+                <img src="{file_url}" alt="이미지 미리보기" />
+            </body>
+            </html>
+            """
+            return HTMLResponse(content=html_content)
+        else:
+            raise HTTPException(status_code=415, detail="Unsupported file type for preview")
+    
+    except Exception as e:
+        logger.error(f"Error previewing file: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="File preview failed")
+    
+
+
+@router.get("/exists_files/{file_path:path}")
+async def get_shared_file(file_path: str):
+    logger.info(f"file_path: {file_path}")
+    full_file_path = os.path.join("/", file_path)
+    logger.info(f"full_file_path: {full_file_path}")
+
+    if os.path.exists(full_file_path):
+        return FileResponse(full_file_path)
+    else:
+        return {"detail": "File not found"}
