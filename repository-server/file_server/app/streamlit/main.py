@@ -1,7 +1,26 @@
+import os
+import logging
+import logging.config
+import json
 import streamlit as st
 from sidebar import display_sidebar
 from mainboard import display_mainboard 
 
+
+# JSON 파일 경로
+logging_config_file = os.path.join(os.path.dirname(__file__), 'config', 'logging_config.json')
+
+# JSON 파일에서 로그 설정 읽기
+if os.path.exists(logging_config_file):
+    with open(logging_config_file, 'r') as f:
+        config = json.load(f)
+        logging.config.dictConfig(config)
+else:
+    logging.basicConfig(level=logging.INFO)
+    print(f"Warning: 로그 설정 파일을 찾을 수 없습니다. 기본 설정으로 시작합니다.")
+
+# logger 설정
+logger = logging.getLogger("my_logger")
 
 def main():
     st.set_page_config(layout="wide")
