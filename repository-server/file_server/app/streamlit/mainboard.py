@@ -3,7 +3,9 @@ import streamlit as st
 from file_service import get_files_for_date
 from filePreview_service import preview_file  # 파일 미리보기 서비스 불러오기
 import logging
+import os
 from datetime import datetime
+import base64
 
 # 상수 정의
 DOWNLOAD_CHECK_COLUMN = "다운로드 체크"
@@ -15,13 +17,26 @@ PREVIEW_COLUMN = "미리보기"  # 미리보기 버튼 열 추가
 # 로그 설정
 logger = logging.getLogger("my_logger")
 
+# 이미지 파일을 Base64로 인코딩하는 함수
+def encode_image_to_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        encoded_string = base64.b64encode(img_file.read()).decode("utf-8")
+    return encoded_string
+
 def display_mainboard(selected_date, selected_user, selected_user_id):
     # 선택한 날짜에 대한 파일 리스트 가져오기
     files = get_files_for_date(selected_date, selected_user_id)
     if files:
         data = []
-        preview_button_image_url = "https://img.icons8.com/ios-filled/50/808080/document--v1.png"
-
+       # 'img' 폴더에 있는 이미지 파일 경로 설정
+        image_path = "/file_server/app/app/streamlit/img/document.png"
+        
+        # 이미지 파일을 Base64로 인코딩
+        encoded_image = encode_image_to_base64(image_path)
+        
+        # Base64 인코딩된 이미지 데이터로 URL 생성
+        preview_button_image_url = f"data:image/png;base64,{encoded_image}"
+        logger.info(f"preview_button_image_url = {preview_button_image_url}")
         #for file in enumerate(files):
         for file in files:    
             file_name = file.get('file_name')
@@ -43,6 +58,7 @@ def display_mainboard(selected_date, selected_user, selected_user_id):
                 CREATED_AT_COLUMN: formatted_created_at,
                 FILE_PATH_COLUMN: f'<a href="{file_url}" target="_blank">{file_url}</a>',
                 PREVIEW_COLUMN: f'<a href="{preview_url}" target="_blank"><img src="{preview_button_image_url}" alt="미리보기" style="width:50px;height:50px;"></a>',
+                #PREVIEW_COLUMN: f'<a href="{preview_url}" target="_blank"><img src="{preview_button_image_url}" alt="미리보기" style="width:50px;height:50px;"></a>',
             })
         
         # DataFrame 생성
