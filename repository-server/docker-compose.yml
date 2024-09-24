@@ -61,12 +61,27 @@ services:
     networks:
       - file_network
 
+  ubuntu:
+    build:
+      context: ./ubuntu  # Dockerfile이 위치한 경로
+      dockerfile: Dockerfile  # Dockerfile 이름
+    container_name: ubuntu
+    ports:
+      - "5900:5900"  # VNC 서버 포트
+      - "6080:80"    # noVNC 웹 인터페이스 포트
+    environment:
+      - DISPLAY=:1  # X 서버 디스플레이 설정
+    networks:
+      - shared_network
+    tty: true  # 터미널 접근 가능
+    stdin_open: true
 
 volumes:
   gitlab-data:
   gitlab-logs:
   gitlab-config:
   shared_files: #공유파일
+  ubuntu_shared:
 
 networks:
   shared_network:
