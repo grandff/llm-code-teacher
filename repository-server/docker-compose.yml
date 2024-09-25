@@ -16,6 +16,7 @@ services:
       - gitlab-config:/etc/gitlab
     networks:      
       - shared_network
+      - gitlab_network
 
   file_server:
     build:
@@ -65,14 +66,9 @@ services:
     build:
       context: ./ubuntu  # Dockerfile이 위치한 경로
       dockerfile: Dockerfile  # Dockerfile 이름
-    container_name: ubuntu
-    ports:
-      - "5900:5900"  # VNC 서버 포트
-      - "6080:80"    # noVNC 웹 인터페이스 포트
-    environment:
-      - DISPLAY=:1  # X 서버 디스플레이 설정
+    container_name: ubuntu    
     networks:
-      - shared_network
+      - gitlab_network
     tty: true  # 터미널 접근 가능
     stdin_open: true
 
@@ -87,6 +83,8 @@ networks:
   shared_network:
     external: true  
   file_network:
+    driver: bridge
+  gitlab_network:
     driver: bridge
   report_network:
     external: true  
