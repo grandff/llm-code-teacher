@@ -1,5 +1,23 @@
 # ubuntu
 
+## ssh 등록
+```bash
+//ssh 발급 위치 이동
+cd ~/.ssh/
+
+//터미널에서 ssh key 발급 
+ssh-keygen -t rsa -b 4096 -C "root@example.com"
+
+//개인 키를 에이전트 추가 
+ssh-add ~/.ssh/id_rsa 
+
+//공개 키 내용을 확인하고 복사
+cat ~/.ssh/id_rsa.pub
+
+//gitlab에 자신의 ssh 등록 
+
+```
+
 ## ubuntu 컨테이너 접속
 ```bash
 VScode에서 Dev Containers에 ubuntu 접속
