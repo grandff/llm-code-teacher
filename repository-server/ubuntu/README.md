@@ -22,7 +22,7 @@ git config --global user.email
 
 ```bash
 //프로젝트 등록
-git remote add origin <Clone with SSH>
+git remote add origin <Clone with SSH - gitlab url>
 
 git add <파일명>
 git commit -m <message>

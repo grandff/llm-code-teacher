@@ -1,3 +1,4 @@
+myenv
 .env.*
 nginx_proxy_manager/
 /fastapi/env/

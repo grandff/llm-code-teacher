@@ -102,46 +102,10 @@ def llm_code_review_task(prompt, user_name) :
         except Exception as e :
             logging.error(e)
             file_response = file_send_response
-        # FIXME 자꾸 json 오류 나서 일단 빈값으로 리턴
+        
         return { "response" : ai_response, "file_info" : file_info, "file_response" : ""}
     except httpx.HTTPStatusError as exc:
         return str(exc)
-
-# old version 
-# @celery_app.task(name="tasks.llm_code_review_task")
-# def llm_code_review_task(prompt):    
-#     try:
-#         client = Client(host=OLLAMA_URL)
-#         response = client.chat(
-#             model='llama3.1', 
-#             messages=[
-#                 {
-#                     'role' : 'system',
-#                     'content' : """
-#                     You're a very good software analyst and engineer. 
-#                     From now on, the user is going to show you a complete set of committed source code. 
-#                     You're going to look at it, analyze it, and tell us what you find. 
-#                     Please provide your analysis in markdown format.                     
-#                     Analyze the source code, predict the outcome of a hypothetical execution, and present a refactoring of the source code to improve performance or make it more readable.
-                    
-#                     Please set the title of each item to match the markdown format (ex: use ##)
-                    
-#                     All responses must be in Korean."""
-#                 },
-#                 {
-#                     'role': 'user',
-#                     'content': prompt,
-#                 },
-#             ])                 
-#         ai_response = response['message']['content']
-#         file_dir = "/home/example/"
-#         file_name = "example.md"
-#         file_info = save_md_to_file(ai_response, file_dir, file_name)
-        
-#         return { "response" : ai_response, "info" : file_info}
-#     except httpx.HTTPStatusError as exc:
-#         return str(exc)
-    
 
 # markdown 파일 생성
 def save_md_to_file(markdown_str : str, directory : str, file_name : str) :
@@ -164,16 +128,12 @@ def save_md_to_file(markdown_str : str, directory : str, file_name : str) :
     return file_info
 
 # 파일서버로 보고서 파일 전송
-def send_to_file_server(file_info : dict, user_name : str) :
-    # 오늘 날짜
-    # today_date = datetime.now().strftime("%Y%m%d")
+def send_to_file_server(file_info : dict, user_name : str) :    
     # 파일 경로    
     files = {'file': open(file_info['file_path'], 'rb')}
     # palyload
     body = {
-        "username" : user_name,
-        # "gitlab_id" : "123",   # FIXME 곧 지울 예정
-        # "regdate" : today_date, # FIXME 컬럼 이름이 정해지면 변경해야함. 임시로 컬럼이름 이렇게 설정함.
+        "username" : user_name,        
     }
     response = requests.post(FILE_UPLOAD_URL, files=files, data=body)
     
