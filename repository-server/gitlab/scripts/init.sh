@@ -6,6 +6,9 @@ LOG_FILE="/var/log/gitlab_setup.log"
 # 로그 파일에 출력 저장
 exec > >(tee -a ${LOG_FILE} ) 2>&1
 
+# SSH 서비스 시작
+echo "Starting SSH service..."
+service ssh start
 
 # GitLab의 runit 서비스 디렉토리 시작 (백그라운드에서 실행)
 echo "Starting runit service directory..."

@@ -1,8 +1,12 @@
 # 베이스 이미지로 Python 3.12 버전 사용
 FROM python:3.12
 
-# 필요한 패키지 업데이트 및 curl 설치
-RUN apt-get update && apt-get install -y curl supervisor
+# 비대화형 모드로 설정
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_NO_INPUT=1
+
+# 필요한 패키지 업데이트 및 curl, supervisor 설치
+RUN apt-get update && apt-get install -y curl supervisor && apt-get clean
 
 # 워킹 디렉터리 설정
 WORKDIR /app

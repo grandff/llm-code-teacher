@@ -32,4 +32,14 @@ git branch
 
 //강제적으로 가져오기 
 git pull origin main --allow-unrelated-histories
+
+
+service ssh status
+```
+
+
+## gitlab과 ssh 통신 확인
+```bash
+service ssh start
+service ssh status
 ```
