@@ -255,21 +255,62 @@ def generate_html_template(title: str, body_content: str) -> str:
     <html lang="ko">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{title}</title>
         <style>
             html, body {{
-                height: 100%;  /* html과 body의 높이를 100%로 설정 */
-                margin: 0;  /* 기본 margin 제거 */
-                padding: 0;  /* 기본 padding 제거 */
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
                 background-color: #f4f4f4;
             }}
             iframe {{
                 width: 100%;
-                height: 100%;
+                height: 100%;  /* Iframe이 화면 전체 높이를 사용 */
                 border: none;
             }}
-            
+            img {{
+                max-width: 100%;  /* 이미지 최대 너비 */
+                max-height: 100%; /* 이미지 최대 높이 */
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+            }}
+            th, td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+            }}
+            th {{
+                background-color: #f2f2f2;
+            }}
+            /* 코드 블록과 인라인 코드 스타일 */
+            pre, code {{
+                background-color: #282c34; /* 어두운 배경 */
+                color: #abb2bf; /* 기본 텍스트 색상 */
+                padding: 10px;
+                border-radius: 5px;
+                font-family: "Courier New", Courier, monospace;
+            }}
+
+            /* 코드 블록 스타일 */
+            pre {{
+                background-color: #282c34;
+                color: #abb2bf;
+                padding: 16px;
+                border-radius: 8px;
+                overflow-x: auto; /* 긴 코드에 대한 가로 스크롤 활성화 */
+                white-space: pre-wrap; /* 줄바꿈 유지 */
+                font-family: "Courier New", Courier, monospace;
+            }}
+            /* 인라인 코드 스타일 */
+            code {{
+                background-color: #3c4048;
+                color: #d6336c;
+                padding: 2px 4px;
+                border-radius: 4px;
+                font-family: "Courier New", Courier, monospace;
+            }}
         </style>
     </head>
     <body>
@@ -289,7 +330,7 @@ async def preview_text_file(full_file_path: str) -> HTMLResponse:
     with open(full_file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     encoded_content = urllib.parse.quote(content, safe='')
-    body_content = f'<iframe src="data:text/plain;charset=utf-8,{encoded_content}style="height: 100%; width: 100%;"></iframe>'
+    body_content = f'<iframe src="data:text/plain;charset=utf-8,{encoded_content}"></iframe>'
     return HTMLResponse(content=generate_html_template('텍스트 파일 미리보기', body_content))
 
 
@@ -327,23 +368,35 @@ async def preview_image_file(file_url: str) -> HTMLResponse:
     return HTMLResponse(content=generate_html_template('이미지 파일 미리보기', body_content))
 
 
-async def preview_md_file(full_file_path: str) -> HTMLResponse:
+# async def preview_md_file(full_file_path: str) -> HTMLResponse:
+#     """
+#     md 파일을 미리보기 위한 함수.
+    
+#     :param full_file_path: md 파일의 전체 경로
+#     :return: HTMLResponse로 Markdown 파일 미리보기 페이지 반환
+#     """
+#     # md 파일을 읽어서 내용 가져오기
+#     with open(full_file_path, 'r', encoding='utf-8') as file:
+#         md_content = file.read()
+
+#     # Markdown을 HTML로 변환
+#     html_content = markdown.markdown(md_content)
+
+#     # 변환된 HTML 콘텐츠로 HTML 페이지 반환
+#     return HTMLResponse(content=generate_html_template('Markdown 파일 미리보기', html_content))
+
+def preview_md_file(full_file_path: str) -> None:
     """
     md 파일을 미리보기 위한 함수.
     
     :param full_file_path: md 파일의 전체 경로
-    :return: HTMLResponse로 Markdown 파일 미리보기 페이지 반환
     """
-    # md 파일을 읽어서 내용 가져오기
+    logger.info(f"preview_md_file: {full_file_path}")
     with open(full_file_path, 'r', encoding='utf-8') as file:
         md_content = file.read()
+    html_content = markdown.markdown(md_content)
+    st.markdown(generate_html_template('Markdown 파일 미리보기', html_content), unsafe_allow_html=True)
 
-    # Markdown을 HTML로 변환
-    #코드 블록을 처리하고 강조 표시(하이라이팅)하는 데 사용
-    html_content = markdown.markdown(md_content, extensions=['fenced_code', 'codehilite'])
-
-    # 변환된 HTML 콘텐츠로 HTML 페이지 반환
-    return HTMLResponse(content=generate_html_template('Markdown 파일 미리보기', html_content))
 
 @router.get("/preview_file/")
 async def preview_file(file_path: str) -> HTMLResponse:
@@ -372,7 +425,7 @@ async def preview_file(file_path: str) -> HTMLResponse:
     elif file_extension in [".jpg", ".jpeg", ".png", ".gif"]:
         return await preview_image_file(file_url)
     elif file_extension == ".md":
-        return await preview_md_file(full_file_path) 
+        return await preview_md_file(full_file_path)
     else:
         raise HTTPException(status_code=HTTP_UNSUPPORTED_MEDIA, detail="Unsupported file type for preview")
 

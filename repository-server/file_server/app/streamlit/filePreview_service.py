@@ -42,6 +42,12 @@ def preview_file(file_url):
             st.write("Excel 파일 미리보기:")
             excel_data = pd.read_excel(BytesIO(file_content))
             st.dataframe(excel_data)
+            
+        elif file_url.endswith(".md"):
+            # Markdown 파일 처리
+            st.write("Markdown 파일 미리보기:")
+            markdown_content = file_content.decode("utf-8")
+            st.markdown(markdown_content)
 
         else:
             st.error("지원되지 않는 파일 형식입니다.")

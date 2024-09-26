@@ -27,6 +27,7 @@ INSERT IGNORE INTO users (username) VALUES
 -- 사용자 ID를 서브쿼리로 조회하여 파일 데이터 삽입
 INSERT INTO files (user_id, file_name, file_path, created_at) VALUES
 ((SELECT id FROM users WHERE username = 'miyeonlim'), 'rep_20240812_140000.txt', '/shared_files/20240812/miyeonlim/rep_20240812_140000.txt', '2024-08-12 14:00:00'),
+((SELECT id FROM users WHERE username = 'miyeonlim'), 'rep_20240812_150000.md', '/shared_files/20240812/miyeonlim/rep_20240812_150000.md', '2024-08-12 15:00:00'),
 ((SELECT id FROM users WHERE username = 'miyeonlim'), 'rep_20240812_141000.txt', '/shared_files/20240812/miyeonlim/rep_20240812_141000.txt', '2024-08-12 14:10:00'),
 ((SELECT id FROM users WHERE username = 'johnsmith'), 'rep_20240812_120000.txt', '/shared_files/20240812/johnsmith/rep_20240812_120000.txt', '2024-08-12 12:00:00'),
 
