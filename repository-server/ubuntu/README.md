@@ -15,8 +15,11 @@ ssh-add ~/.ssh/id_rsa
 cat ~/.ssh/id_rsa.pub
 
 //gitlab에 자신의 ssh 등록 
-
+아애 사진 참조
 ```
+<img width="274" alt="스크린샷 2024-09-25 오후 2 20 18" src="https://github.com/user-attachments/assets/c0e80593-522b-4de1-bf25-13537329d898">
+<img width="1577" alt="스크린샷 2024-09-25 오후 2 20 37" src="https://github.com/user-attachments/assets/349fbe59-a617-4726-95cf-f56161e8a382">
+
 
 ## ubuntu 컨테이너 접속
 ```bash
